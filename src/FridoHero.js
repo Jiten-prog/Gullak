@@ -1,517 +1,1979 @@
-import { useState, useEffect } from 'react';
-import { ChevronDown, Phone, Mail, ShoppingCart, Menu, X, Star, ArrowRight, Check, Play, Heart, MessageCircle, Share, Instagram, Pause, Maximize, User } from 'lucide-react';
-import './FridoHero.css';
+import React, { useState } from 'react';
+import { Search, User, ShoppingCart, X, ChevronDown } from 'lucide-react';
 
-// Centralized Image Configuration
-const IMAGE_CONFIG = {
-  hero: {
-    carousel: [
-      "https://cdn.shopify.com/s/files/1/0553/0419/2034/files/1nov2025-desktop.jpg?v=1762154799&width=1944",
-      "https://cdn.shopify.com/s/files/1/0553/0419/2034/files/DOD_UPI_Update_Banner.jpg?v=1754565325&width=2160",
-      "https://cdn.shopify.com/s/files/1/0553/0419/2034/files/1nov2025-desktop.jpg?v=1762154799&width=1944",
-      "https://cdn.shopify.com/s/files/1/0553/0419/2034/files/Mobility_banner.png?v=1743073369&width=1944"
-    ]
-  },
-  categories: [
-    { id: 1, name: 'Insoles', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=200&h=200&fit=crop' },
-    { id: 2, name: 'Cushions', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=200&h=200&fit=crop' },
-    { id: 3, name: 'Car Essentials', image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=200&h=200&fit=crop' },
-    { id: 4, name: 'Chairs', image: 'https://images.unsplash.com/photo-1586201375761-83865001e26c?w=200&h=200&fit=crop' },
-    { id: 5, name: 'Maternity', image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=200&h=200&fit=crop' },
-    { id: 6, name: 'Pillows', image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=200&h=200&fit=crop' },
-    { id: 7, name: 'Desks', image: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=200&h=200&fit=crop' },
-    { id: 8, name: 'Footwear', image: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=200&h=200&fit=crop' },
-    { id: 9, name: 'Barefoot', image: 'https://images.unsplash.com/photo-1605408499391-6368c628ef42?w=200&h=200&fit=crop' }
-  ],
-  bestSellers: [
-    { id: 1, name: 'Gullak Wedge Cushion', price: '₹2,999', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=300&fit=crop', badge: 'Hot selling' },
-    { id: 2, name: 'Lumbar Support Pillow', price: '₹1,499', image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&h=300&fit=crop', badge: null },
-    { id: 3, name: 'Memory Foam Insoles', price: '₹899', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=300&h=300&fit=crop', badge: null },
-    { id: 4, name: 'Ergonomic Chair', price: '₹12,999', image: 'https://images.unsplash.com/photo-1586201375761-83865001e26c?w=300&h=300&fit=crop', badge: 'Hot selling' }
-  ],
-  reels: [
-    {
-      id: 1,
-      title: "Perfect Posture in 30 Days",
-      thumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=400&fit=crop",
-      embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0",
-      likes: "12.5K",
-      comments: "234",
-      description: "Transform your workspace setup"
-    },
-    {
-      id: 2,
-      title: "Ergonomic Chair Setup Guide",
-      thumbnail: "https://images.unsplash.com/photo-1586201375761-83865001e26c?w=300&h=400&fit=crop",
-      embedUrl: "https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0",
-      likes: "8.3K",
-      comments: "156",
-      description: "How to adjust your chair properly"
-    },
-    {
-      id: 3,
-      title: "Back Pain Relief Exercises",
-      thumbnail: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=400&fit=crop",
-      embedUrl: "https://www.youtube.com/embed/oUFJJNQGwhk?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0",
-      likes: "15.2K",
-      comments: "321",
-      description: "Quick exercises for office workers"
-    },
-    {
-      id: 4,
-      title: "Customer Success Story",
-      thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
-      embedUrl: "https://www.youtube.com/embed/9bZkp7q19f0?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0",
-      likes: "9.7K",
-      comments: "187",
-      description: "Real results from real customers"
-    }
-  ]
-};
-
-const FridoHero = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('chairs');
-
-  const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [categoryScroll, setCategoryScroll] = useState(0);
-  const [cartItems, setCartItems] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
-  
-  // WhatsApp Configuration
-  const whatsappNumber = "+919530640463";
-  const businessName = "Gullak Support";
-  const welcomeMessage = "Hi! Welcome to Gullak! How can we help you find the perfect ergonomic solution today?";
-
-  // Use centralized image config
-  const shopCategories = IMAGE_CONFIG.categories;
-  const bestSellers = IMAGE_CONFIG.bestSellers;
-  const carouselImages = IMAGE_CONFIG.hero.carousel;
-  const categories = [
-    { id: 'insoles', name: 'Insoles' },
-    { id: 'cushions', name: 'Cushions' },
-    { id: 'car', name: 'Car Essentials' },
-    { id: 'chairs', name: 'Chairs' },
-    { id: 'maternity', name: 'Maternity' },
-    { id: 'pillows', name: 'Pillows' },
-    { id: 'desks', name: 'Desks' },
-    { id: 'footwear', name: 'Footwear' },
-    { id: 'socks', name: 'Barefoot Socks' },
-    { id: 'orthotics', name: 'Gullak Orthotics' },
-    { id: 'accessories', name: 'Accessories' },
-    { id: 'masks', name: 'Masks' },
-    { id: 'mobility', name: 'Mobility' }
-  ];
-
-  const newArrivals = [
-    { id: 1, name: 'Gullak Pro Lumbar Cushion', price: '₹1,799', originalPrice: '₹2,999', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=300&fit=crop', badge: 'New' },
-    { id: 2, name: 'ErgoFlex Memory Foam Pillow', price: '₹999', originalPrice: '₹1,499', image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=300&h=300&fit=crop', badge: 'New' },
-    { id: 3, name: 'ComfortMax Gel Insoles', price: '₹699', originalPrice: '₹1,199', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=300&h=300&fit=crop', badge: 'New' },
-    { id: 4, name: 'FlexiDesk Standing Converter', price: '₹8,999', originalPrice: '₹14,999', image: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=300&h=300&fit=crop', badge: 'New' }
-  ];
-
-  const features = [
-    { icon: '🎯', title: 'Expert Design', desc: 'Ergonomically crafted for maximum comfort' },
-    { icon: '🛡️', title: 'Quality Guarantee', desc: '7-day return policy & warranty' },
-    { icon: '🚚', title: 'Fast Delivery', desc: 'Quick & secure shipping nationwide' },
-    { icon: '💼', title: 'Corporate Solutions', desc: 'Bulk orders for business wellness' }
-  ];
-
-
-
-  const scrollCategories = (direction) => {
-    const maxScroll = Math.max(0, shopCategories.length - 4);
-    setCategoryScroll(prev => {
-      if (direction === 'left') {
-        return Math.max(0, prev - 1);
-      } else {
-        return Math.min(maxScroll, prev + 1);
-      }
-    });
-  };
-
-  const addToCart = (product) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
-      if (existingItem) {
-        return prev.map(item => 
-          item.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...prev, { ...product, quantity: 1 }];
-      }
-    });
-    setCartCount(prev => prev + 1);
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [carouselImages.length]);
+// Mega Menu Component
+function MegaMenu({ isOpen, onClose }) {
+  if (!isOpen) return null;
 
   return (
-    <div className="frido-container">
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <div className="header-nav">
-            <div className="logo">
-              <span className="gullak-g">G</span>
-              <span className="gullak-u">u</span>
-              <span className="gullak-l1">l</span>
-              <span className="gullak-l2">l</span>
-              <span className="gullak-a">a</span>
-              <span className="gullak-k">k</span>
+    <>
+      <div className="mega-menu-overlay" onClick={onClose}></div>
+      <div className="mega-menu">
+        <div className="mega-menu-content">
+          <div className="mega-menu-columns">
+            <div className="mega-menu-column">
+              <h3 className="mega-menu-heading">All Collections</h3>
+              <ul className="mega-menu-list">
+                <li><a href="#">Stuffed Toys</a></li>
+                <li><a href="#">Clothes</a></li>
+                <li><a href="#">Accessories</a></li>
+                <li><a href="#">Footwear</a></li>
+              </ul>
             </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="nav-desktop">
-              <div className="dropdown">
-                <button className="nav-item">
-                  Products <ChevronDown className="icon-sm" />
-                </button>
-                <div className="dropdown-content">
-                  <div className="dropdown-grid">
-                    {categories.map(cat => (
-                      <a key={cat.id} href="#" className="dropdown-item">
-                        {cat.name}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <a href="#" className="nav-item">Bestsellers</a>
-              <a href="#" className="nav-item">Search</a>
-              <a href="#" className="nav-item">Reviews</a>
-            </nav>
 
-            {/* Contact & Cart */}
-            <div className="header-actions">
-              <div className="contact-info">
-                <div className="contact-item">
-                  <Phone className="icon-sm" />
-                  +91 7498476544
-                </div>
-                <div>Mon-Sat: 10am-7pm</div>
+            <div className="mega-menu-column">
+              <h3 className="mega-menu-heading">By Color</h3>
+              <ul className="mega-menu-list">
+                <li><a href="#">Green</a></li>
+                <li><a href="#">Pink</a></li>
+                <li><a href="#">Teal</a></li>
+                <li><a href="#">Lavender</a></li>
+                <li><a href="#">Yellow</a></li>
+              </ul>
+            </div>
+
+            <div className="mega-menu-column">
+              <h3 className="mega-menu-heading">Shop By</h3>
+              <ul className="mega-menu-list">
+                <li><a href="#">New Collection</a></li>
+                <li><a href="#">Favorites of the Season</a></li>
+                <li><a href="#">Discounts</a></li>
+                <li><a href="#">Trending</a></li>
+              </ul>
+            </div>
+
+            <div className="mega-menu-column mega-menu-image-column">
+              <div className="mega-menu-image-container">
+                <img 
+                  src="https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=600&h=400&fit=crop" 
+                  alt="Plush toys"
+                />
               </div>
-              <a href="/login" className="login-button" aria-label="Login">
-                <User className="icon-lg" />
-              </a>
-              <button className="cart-button">
-                <ShoppingCart className="icon-lg" />
-                <span className="cart-badge">{cartCount}</span>
-              </button>
-              <button 
-                className="mobile-menu-button"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? <X className="icon-lg" /> : <Menu className="icon-lg" />}
-              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Collections Sidebar Component
+function CollectionsSidebar({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div className="collections-overlay" onClick={onClose}></div>
+      <div className="collections-sidebar">
+        <div className="collections-header">
+          <h2 className="collections-title">Collections List</h2>
+          <button className="collections-close" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="collections-content">
+          <div className="collections-list">
+            <a href="#" className="collections-item">Stuffed Toys</a>
+            <a href="#" className="collections-item">Clothes</a>
+            <a href="#" className="collections-item">Accessories</a>
+            <a href="#" className="collections-item">Footwear</a>
+          </div>
+
+          <div className="collections-featured">
+            <div className="collections-product-card">
+              <div className="collections-badge">Save $6</div>
+              <div className="collections-product-image">
+                <img 
+                  src="https://images.unsplash.com/photo-1587912781763-9b857c226797?w=400&h=400&fit=crop" 
+                  alt="Crochet Cow"
+                />
+              </div>
+              <h3 className="collections-product-name">Crochet Cow</h3>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="mobile-menu">
-            {categories.map(cat => (
-              <a key={cat.id} href="#" className="mobile-menu-item">
-                {cat.name}
-              </a>
-            ))}
-          </div>
-        )}
-      </header>
+        <div className="collections-swirl">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 20,50 Q 30,20 50,30 Q 70,40 60,60" stroke="#fbbf24" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+    </>
+  );
+}
 
-      {/* Promo Banner */}
-      <div className="promo-banner">
-        <div className="promo-content">
-          <span className="promo-text">
-            🔥 LIMITED TIME OFFER: Get <strong>40% OFF</strong> on all ergonomic products! 
-          </span>
-          <span className="promo-cta">Shop Now & Save Big!</span>
+export default function ToyoLandingPage() {
+  const [showDiscount, setShowDiscount] = useState(true);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [collectionsSidebarOpen, setCollectionsSidebarOpen] = useState(false);
+
+  return (
+    <>
+      <style>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+
+        .hero-section {
+          min-height: 100vh;
+          background: linear-gradient(to bottom right, #ef4444, #f97316);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .hero-background-svg {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          width: 100%;
+          height: 100%;
+        }
+
+        .nav-container {
+          position: relative;
+          z-index: 20;
+          background: white;
+          border-radius: 9999px;
+          margin: 1rem 1rem;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-inner {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1rem 1.5rem;
+        }
+
+        .nav-left {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        .nav-button {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          color: #374151;
+          background: none;
+          border: none;
+          font-weight: 500;
+          cursor: pointer;
+          transition: color 0.3s;
+          font-size: 1rem;
+        }
+
+        .nav-button:hover {
+          color: #ef4444;
+        }
+
+        .nav-logo {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 2.25rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .nav-right {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+        }
+
+        .nav-icon-button {
+          color: #374151;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: color 0.3s;
+          padding: 0.5rem;
+        }
+
+        .nav-icon-button:hover {
+          color: #ef4444;
+        }
+
+        .nav-separator {
+          color: #d1d5db;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 10;
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 5rem 1rem 8rem;
+          text-align: center;
+        }
+
+        .hero-title {
+          font-size: 6rem;
+          font-weight: bold;
+          color: white;
+          line-height: 1.1;
+          margin-bottom: 2rem;
+        }
+
+        .hero-bear-container {
+          display: flex;
+          justify-content: center;
+          margin-top: 3rem;
+        }
+
+        .hero-bear-circle {
+          width: 20rem;
+          height: 20rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(4px);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 8rem;
+        }
+
+        .decorative-plus-1 {
+          position: absolute;
+          top: 24rem;
+          left: 8rem;
+          color: #fcd34d;
+          font-size: 2.5rem;
+          font-weight: 300;
+        }
+
+        .decorative-plus-2 {
+          position: absolute;
+          bottom: 8rem;
+          right: 8rem;
+          color: #fcd34d;
+          font-size: 2.5rem;
+          font-weight: 300;
+        }
+
+        /* Animated Banner */
+        .banner-section {
+          position: relative;
+          background: #fef3c7;
+          padding: 2rem 0;
+          overflow: hidden;
+        }
+
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.333%);
+          }
+        }
+
+        .marquee-container {
+          display: flex;
+          white-space: nowrap;
+          animation: marquee 20s linear infinite;
+        }
+
+        .marquee-text {
+          font-size: 5rem;
+          font-weight: bold;
+          color: #ef4444;
+          display: inline-block;
+          margin: 0 2rem;
+        }
+
+        /* Product Categories */
+        .categories-section {
+          position: relative;
+          z-index: 10;
+          background: #fef3c7;
+          padding: 4rem 1rem;
+        }
+
+        .categories-grid {
+          max-width: 1280px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+          .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .categories-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        .category-card {
+          border-radius: 1.5rem;
+          overflow: hidden;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s;
+          cursor: pointer;
+        }
+
+        .category-card:hover {
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-image {
+          width: 100%;
+          height: 20rem;
+          object-fit: cover;
+        }
+
+        .category-card-blue {
+          background: #1e3a8a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 20rem;
+        }
+
+        .category-logo-badge {
+          background: white;
+          border-radius: 9999px;
+          padding: 2rem 4rem;
+        }
+
+        .category-logo-text {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .category-card-pink {
+          background: linear-gradient(to bottom right, #ec4899, #db2777);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 20rem;
+        }
+
+        .category-card-green {
+          background: #16a34a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 20rem;
+        }
+
+        .category-card-orange {
+          background: linear-gradient(to bottom right, #f97316, #ef4444);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 20rem;
+        }
+
+        .category-title {
+          font-size: 3rem;
+          font-weight: bold;
+          color: white;
+        }
+
+        /* Product Showcase Section */
+        .showcase-section {
+          position: relative;
+          background: #fef3c7;
+          padding: 4rem 1rem;
+          overflow: hidden;
+        }
+
+        .showcase-decor-right {
+          position: absolute;
+          bottom: 5rem;
+          right: 5rem;
+          width: 12rem;
+          height: 12rem;
+          opacity: 0.4;
+        }
+
+        .showcase-container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        .showcase-header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .showcase-logo-badge {
+          display: inline-block;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.75rem 2rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .showcase-logo-text {
+          font-size: 2.25rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .showcase-title {
+          font-size: 4rem;
+          font-weight: bold;
+          color: #ef4444;
+          margin-bottom: 2rem;
+        }
+
+        .showcase-tabs {
+          display: flex;
+          justify-content: center;
+          gap: 0;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.5rem;
+          max-width: 48rem;
+          margin: 0 auto;
+          border: 2px solid #111827;
+          overflow-x: auto;
+        }
+
+        .showcase-tab {
+          flex: 1;
+          padding: 1rem 2rem;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1.125rem;
+          color: #111827;
+          transition: all 0.3s;
+          border-radius: 9999px;
+          white-space: nowrap;
+        }
+
+        .showcase-tab.active {
+          background: linear-gradient(to right, #ef4444, #dc2626);
+          color: white;
+        }
+
+        .showcase-tab:hover:not(.active) {
+          color: #ef4444;
+        }
+
+        .showcase-products {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          margin-top: 3rem;
+        }
+
+        @media (min-width: 640px) {
+          .showcase-products {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .showcase-products {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+
+        .product-card {
+          background: white;
+          border-radius: 1.5rem;
+          overflow: hidden;
+          border: 2px solid #111827;
+          transition: all 0.3s;
+          cursor: pointer;
+          position: relative;
+        }
+
+        .product-card:hover {
+          transform: translateY(-0.5rem);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image-container {
+          position: relative;
+          padding: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 20rem;
+        }
+
+        .product-image {
+          width: 100%;
+          height: auto;
+          object-fit: contain;
+        }
+
+        .product-badge {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          background: #7c3aed;
+          color: white;
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border-radius: 9999px;
+          font-size: 0.875rem;
+        }
+
+        .product-info {
+          padding: 1.5rem;
+          text-align: center;
+          border-top: 2px solid #111827;
+        }
+
+        .product-name {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+          font-size: 1.125rem;
+          color: #4b5563;
+        }
+
+        .product-price-sale {
+          color: #ef4444;
+          font-weight: bold;
+        }
+
+        .product-price-original {
+          text-decoration: line-through;
+          color: #9ca3af;
+          margin-left: 0.5rem;
+        }
+
+        /* Mega Menu Styles */
+        .mega-menu-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 40;
+        }
+
+        .mega-menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          z-index: 50;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          margin-top: 0.5rem;
+          border-radius: 1.5rem;
+          overflow: hidden;
+          animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .mega-menu-content {
+          padding: 3rem 2rem;
+        }
+
+        .mega-menu-columns {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 3rem;
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        .mega-menu-column {
+          position: relative;
+        }
+
+        .mega-menu-heading {
+          font-size: 1.125rem;
+          font-weight: bold;
+          color: #4338ca;
+          margin-bottom: 1.5rem;
+        }
+
+        .mega-menu-list {
+          list-style: none;
+        }
+
+        .mega-menu-list li {
+          margin-bottom: 1rem;
+        }
+
+        .mega-menu-list a {
+          color: #111827;
+          text-decoration: none;
+          transition: color 0.3s;
+          font-size: 0.95rem;
+        }
+
+        .mega-menu-list a:hover {
+          color: #ef4444;
+        }
+
+        .mega-menu-image-column {
+          position: relative;
+        }
+
+        .mega-menu-image-container {
+          border-radius: 1.5rem;
+          overflow: hidden;
+          border: 3px solid #ef4444;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          position: relative;
+        }
+
+        .mega-menu-image-container::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, transparent 0%, transparent 50%, rgba(239, 68, 68, 0.1) 100%);
+          pointer-events: none;
+        }
+
+        .mega-menu-image-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .mega-menu-swirl {
+          position: absolute;
+          bottom: -2rem;
+          left: -2rem;
+          width: 8rem;
+          height: 8rem;
+          opacity: 0.2;
+        }
+
+        @media (max-width: 1024px) {
+          .mega-menu-columns {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .mega-menu-image-column {
+            grid-column: span 2;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .mega-menu-columns {
+            grid-template-columns: 1fr;
+          }
+          
+          .mega-menu-image-column {
+            grid-column: span 1;
+          }
+        }
+
+        /* Collections Sidebar Styles */
+        .collections-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 60;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .collections-sidebar {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 400px;
+          max-width: 90vw;
+          height: 100vh;
+          background: #fef3c7;
+          z-index: 70;
+          overflow-y: auto;
+          animation: slideInRight 0.3s ease-out;
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+
+        .collections-header {
+          position: relative;
+          padding: 2rem;
+          background: white;
+          border-bottom: 2px solid #111827;
+        }
+
+        .collections-title {
+          font-size: 1.875rem;
+          font-weight: bold;
+          color: #ef4444;
+          padding-right: 3rem;
+        }
+
+        .collections-close {
+          position: absolute;
+          top: 2rem;
+          right: 2rem;
+          background: #ef4444;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 2.5rem;
+          height: 2.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .collections-close:hover {
+          background: #dc2626;
+          transform: rotate(90deg);
+        }
+
+        .collections-content {
+          padding: 2rem;
+          position: relative;
+        }
+
+        .collections-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          margin-bottom: 3rem;
+        }
+
+        .collections-item {
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: #111827;
+          text-decoration: none;
+          transition: all 0.3s;
+          padding: 0.5rem 0;
+        }
+
+        .collections-item:hover {
+          color: #ef4444;
+          transform: translateX(0.5rem);
+        }
+
+        .collections-featured {
+          margin-top: 3rem;
+        }
+
+        .collections-product-card {
+          background: white;
+          border-radius: 1.5rem;
+          overflow: hidden;
+          border: 2px solid #111827;
+          position: relative;
+        }
+
+        .collections-badge {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          background: #7c3aed;
+          color: white;
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          z-index: 10;
+        }
+
+        .collections-product-image {
+          padding: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 16rem;
+        }
+
+        .collections-product-image img {
+          width: 100%;
+          height: auto;
+          object-fit: contain;
+        }
+
+        .collections-product-name {
+          text-align: center;
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #111827;
+          padding: 1.5rem;
+          border-top: 2px solid #111827;
+        }
+
+        .collections-swirl {
+          position: absolute;
+          bottom: 4rem;
+          right: 2rem;
+          width: 8rem;
+          height: 8rem;
+          pointer-events: none;
+        }
+
+        /* About Section */
+        .about-section {
+          position: relative;
+          background: linear-gradient(to right, #fcd34d, #fbbf24);
+          padding: 5rem 1rem;
+          overflow: hidden;
+        }
+
+        .about-swirl-1 {
+          position: absolute;
+          top: 5rem;
+          left: 33.333%;
+          width: 12rem;
+          height: 12rem;
+          opacity: 0.3;
+        }
+
+        .about-swirl-2 {
+          position: absolute;
+          bottom: 5rem;
+          right: 5rem;
+          width: 8rem;
+          height: 8rem;
+          opacity: 0.3;
+        }
+
+        .about-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 3rem;
+          align-items: center;
+        }
+
+        @media (min-width: 768px) {
+          .about-container {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .about-content {
+          position: relative;
+          z-index: 10;
+        }
+
+        .about-heading {
+          font-size: 4rem;
+          font-weight: bold;
+          color: #ef4444;
+          margin-bottom: 1.5rem;
+        }
+
+        .about-subheading {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 2rem;
+          line-height: 1.2;
+        }
+
+        .about-text {
+          font-size: 1.125rem;
+          color: #1f2937;
+          margin-bottom: 1.5rem;
+          line-height: 1.6;
+        }
+
+        .about-button {
+          margin-top: 2rem;
+          background: linear-gradient(to right, #ef4444, #dc2626);
+          color: white;
+          font-weight: bold;
+          padding: 1rem 3rem;
+          border-radius: 9999px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-button:hover {
+          background: linear-gradient(to right, #dc2626, #b91c1c);
+          transform: scale(1.05);
+        }
+
+        .about-images {
+          position: relative;
+          z-index: 10;
+        }
+
+        .about-logo-badge {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translate(-50%, -2rem);
+          z-index: 20;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.75rem 2rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-logo-text {
+          font-size: 1.875rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .about-image-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+          margin-top: 3rem;
+        }
+
+        .about-image-card {
+          border-radius: 1.5rem;
+          overflow: hidden;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-image-card img {
+          width: 100%;
+          height: 16rem;
+          object-fit: cover;
+        }
+
+        .about-image-card-tall {
+          grid-row: span 2;
+        }
+
+        .about-image-card-tall img {
+          height: 100%;
+        }
+
+        /* Favorites Section */
+        .favorites-section {
+          position: relative;
+          background: #fef3c7;
+          padding: 4rem 1rem;
+          overflow: hidden;
+        }
+
+        .favorites-decor-1 {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 24rem;
+          height: 24rem;
+        }
+
+        .favorites-decor-2 {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 24rem;
+          height: 24rem;
+        }
+
+        .favorites-container {
+          position: relative;
+          z-index: 10;
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        .favorites-header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .favorites-logo-badge {
+          display: inline-block;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.75rem 2rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .favorites-logo-text {
+          font-size: 2.25rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .favorites-title {
+          font-size: 4rem;
+          font-weight: bold;
+          color: #1e3a8a;
+          margin-bottom: 1rem;
+        }
+
+        .favorites-subtitle {
+          font-size: 1.25rem;
+          color: #374151;
+        }
+
+        .countdown-banner {
+          border-radius: 1.5rem;
+          overflow: hidden;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown-inner {
+          position: relative;
+          height: 31.25rem;
+        }
+
+        .countdown-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .countdown-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .countdown-heading {
+          font-size: 3rem;
+          font-weight: bold;
+          color: white;
+          margin-bottom: 2rem;
+        }
+
+        .countdown-boxes {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .countdown-box {
+          background: white;
+          border-radius: 1rem;
+          padding: 1.5rem;
+          min-width: 100px;
+          text-align: center;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown-box-blue {
+          background: #60a5fa;
+        }
+
+        .countdown-number {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .countdown-number-white {
+          color: white;
+        }
+
+        .countdown-label {
+          font-size: 0.875rem;
+          color: #374151;
+          margin-top: 0.5rem;
+        }
+
+        .countdown-label-white {
+          color: white;
+        }
+
+        /* Newsletter Section */
+        .newsletter-section {
+          position: relative;
+          background: linear-gradient(to right, #fcd34d, #fbbf24);
+          padding: 5rem 1rem;
+          overflow: hidden;
+        }
+
+        .newsletter-swirl-1 {
+          position: absolute;
+          top: 2.5rem;
+          left: 2.5rem;
+          width: 8rem;
+          height: 8rem;
+        }
+
+        .newsletter-swirl-2 {
+          position: absolute;
+          top: 2.5rem;
+          right: 2.5rem;
+          width: 10rem;
+          height: 10rem;
+        }
+
+        .newsletter-container {
+          position: relative;
+          z-index: 10;
+          max-width: 56rem;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .newsletter-logo-badge {
+          display: inline-block;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.75rem 2rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .newsletter-logo-text {
+          font-size: 1.875rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        .newsletter-heading {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 1rem;
+        }
+
+        .newsletter-text {
+          font-size: 1.125rem;
+          color: #1f2937;
+          margin-bottom: 2rem;
+        }
+
+        .newsletter-form-container {
+          max-width: 42rem;
+          margin: 0 auto;
+        }
+
+        .newsletter-form {
+          position: relative;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.5rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          border: 4px solid black;
+        }
+
+        .newsletter-form-inner {
+          display: flex;
+          align-items: center;
+        }
+
+        .newsletter-input {
+          flex: 1;
+          padding: 1rem 1.5rem;
+          background: transparent;
+          outline: none;
+          color: #374151;
+          border: none;
+          font-size: 1rem;
+        }
+
+        .newsletter-input::placeholder {
+          color: #9ca3af;
+        }
+
+        .newsletter-button {
+          background: linear-gradient(to right, #ef4444, #dc2626);
+          color: white;
+          font-weight: bold;
+          padding: 1rem 2rem;
+          border-radius: 9999px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .newsletter-button:hover {
+          background: linear-gradient(to right, #dc2626, #b91c1c);
+          transform: scale(1.05);
+        }
+
+        /* Footer */
+        .footer-section {
+          background: linear-gradient(to right, #fcd34d, #fbbf24);
+          padding: 3rem 1rem;
+        }
+
+        .footer-container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        .footer-links {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 2rem;
+          margin-bottom: 3rem;
+        }
+
+        @media (min-width: 768px) {
+          .footer-links {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+
+        .footer-column h4 {
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 1rem;
+          font-size: 1.125rem;
+        }
+
+        .footer-column ul {
+          list-style: none;
+        }
+
+        .footer-column li {
+          margin-bottom: 0.5rem;
+        }
+
+        .footer-column a {
+          color: #1f2937;
+          text-decoration: none;
+          transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+          color: #ef4444;
+        }
+
+        .footer-column a.underlined {
+          text-decoration: underline;
+        }
+
+        .footer-bottom {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 2rem;
+          border-top: 1px solid #eab308;
+          gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+          .footer-bottom {
+            flex-direction: row;
+          }
+        }
+
+        .footer-social {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .footer-social a {
+          color: #111827;
+          transition: color 0.3s;
+        }
+
+        .footer-social a:hover {
+          color: #ef4444;
+        }
+
+        .footer-payment {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+        }
+
+        .payment-badge {
+          background: white;
+          border-radius: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          font-weight: bold;
+          font-size: 0.75rem;
+        }
+
+        .payment-amex {
+          color: #2563eb;
+        }
+
+        .payment-apple {
+          color: #111827;
+        }
+
+        .payment-diners {
+          color: #2563eb;
+        }
+
+        .payment-discover {
+          color: #ea580c;
+        }
+
+        .payment-google {
+          color: #111827;
+        }
+
+        .payment-mastercard {
+          color: #dc2626;
+        }
+
+        .payment-shop {
+          color: #7c3aed;
+        }
+
+        .payment-visa {
+          color: #1e3a8a;
+        }
+
+        .footer-currency {
+          border: 2px solid #111827;
+          border-radius: 9999px;
+          padding: 0.5rem 1.5rem;
+          background: none;
+          color: #111827;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.3s;
+        }
+
+        .footer-currency:hover {
+          background: #111827;
+          color: #fbbf24;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top-button {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          z-index: 50;
+          background: #ef4444;
+          color: white;
+          border-radius: 50%;
+          padding: 1rem;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s;
+        }
+
+        .scroll-top-button:hover {
+          background: #dc2626;
+          transform: scale(1.1);
+        }
+
+        /* Discount Popup */
+        .discount-popup {
+          position: fixed;
+          bottom: 2rem;
+          left: 2rem;
+          z-index: 50;
+          background: white;
+          border-radius: 1rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          padding: 1.5rem;
+          max-width: 20rem;
+          animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(-5%);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+          }
+          50% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+          }
+        }
+
+        .discount-close {
+          position: absolute;
+          top: 0.75rem;
+          right: 0.75rem;
+          color: #9ca3af;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: color 0.3s;
+        }
+
+        .discount-close:hover {
+          color: #4b5563;
+        }
+
+        .discount-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .discount-label {
+          font-size: 0.875rem;
+          color: #4b5563;
+          font-weight: 500;
+        }
+
+        .discount-amount {
+          font-size: 2.25rem;
+          font-weight: bold;
+          color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 4rem;
+          }
+          
+          .marquee-text {
+            font-size: 3rem;
+          }
+          
+          .about-heading {
+            font-size: 3rem;
+          }
+          
+          .about-subheading {
+            font-size: 2rem;
+          }
+          
+          .favorites-title {
+            font-size: 2.5rem;
+          }
+          
+          .countdown-heading {
+            font-size: 2rem;
+          }
+          
+          .newsletter-heading {
+            font-size: 2rem;
+          }
+        }
+      `}</style>
+
+      <div className="hero-section">
+        <svg className="hero-background-svg" viewBox="0 0 1440 800" preserveAspectRatio="none">
+          <path d="M0,400 Q360,200 720,400 T1440,400 L1440,0 L0,0 Z" fill="#F59E0B" opacity="0.3"/>
+          <path d="M0,600 Q360,400 720,600 T1440,600 L1440,800 L0,800 Z" fill="#DC2626" opacity="0.2"/>
+        </svg>
+
+        <nav className="nav-container">
+          <div className="nav-inner">
+            <div className="nav-left">
+              <button 
+                className="nav-button"
+                onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+              >
+                <span>Shop</span>
+                <ChevronDown size={16} />
+              </button>
+              <button 
+                className="nav-button"
+                onClick={() => setCollectionsSidebarOpen(true)}
+              >
+                <span>Collections</span>
+                <ChevronDown size={16} />
+              </button>
+              <button className="nav-button">About Us</button>
+              <button className="nav-button">Blog</button>
+            </div>
+
+            <div className="nav-logo">toYo</div>
+
+            <div className="nav-right">
+              <button className="nav-icon-button">
+                <Search size={20} />
+              </button>
+              <button className="nav-icon-button">
+                <User size={20} />
+              </button>
+              <button className="nav-icon-button">
+                <ShoppingCart size={20} />
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button className="nav-button">
+                  <span>En</span>
+                  <ChevronDown size={16} />
+                </button>
+                <span className="nav-separator">|</span>
+                <button className="nav-button">
+                  <span>🇺🇸</span>
+                  <span>USD $</span>
+                  <ChevronDown size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <MegaMenu isOpen={megaMenuOpen} onClose={() => setMegaMenuOpen(false)} />
+          <CollectionsSidebar isOpen={collectionsSidebarOpen} onClose={() => setCollectionsSidebarOpen(false)} />
+        </nav>
+
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Playtime Is<br />Best Time!
+          </h1>
+
+          <div className="hero-bear-container">
+            <div className="hero-bear-circle">🧸</div>
+          </div>
+        </div>
+
+        <div className="decorative-plus-1">+</div>
+        <div className="decorative-plus-2">+</div>
+      </div>
+
+      <div className="banner-section">
+        <div className="marquee-container">
+          <span className="marquee-text">CRAFTING SMILES, ONE TOY AT A TIME</span>
+          <span className="marquee-text">CRAFTING SMILES, ONE TOY AT A TIME</span>
+          <span className="marquee-text">CRAFTING SMILES, ONE TOY AT A TIME</span>
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-carousel">
-          <div 
-            className="carousel-container"
-            style={{ transform: `translateX(-${currentSlide * 25}%)` }}
-          >
-            {carouselImages.map((image, index) => (
-              <div key={index} className="carousel-slide">
-                <img 
-                  src={image}
-                  alt={`Ergonomic Product ${index + 1}`}
-                  className="carousel-image"
-                />
-              </div>
-            ))}
+      <div className="categories-section">
+        <div className="categories-grid">
+          <div className="category-card">
+            <img 
+              src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=400&fit=crop" 
+              alt="Plush toys" 
+              className="category-image"
+            />
           </div>
-          <div className="carousel-indicators">
-            {carouselImages.map((_, index) => (
-              <div
-                key={index}
-                className={`carousel-dot ${index === currentSlide ? 'active' : ''}`}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features">
-        <div className="features-content">
-          <div className="section-header">
-            <h2 className="section-title">
-  Why Choose <span className="gullak-g">G</span><span className="gullak-u">u</span><span className="gullak-l1">l</span><span className="gullak-l2">l</span><span className="gullak-a">a</span><span className="gullak-k">k</span>?
-</h2>
-            <p className="section-description">
-              We're committed to providing the best ergonomic solutions for your comfort and wellness needs.
-            </p>
-          </div>
-
-          <div className="features-grid">
-            {features.map((feature, index) => (
-              <div key={index} className="feature-card">
-                <div className="feature-icon">{feature.icon}</div>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-description">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Shop by Category Section */}
-      <section className="category-section">
-        <div className="category-content">
-          <div className="category-header">
-            <h2 className="section-title">Shop by Category</h2>
-            <div className="category-nav">
-              <button 
-                className="category-nav-btn"
-                onClick={() => scrollCategories('left')}
-                disabled={categoryScroll === 0}
-              >
-                <ChevronDown className="icon-md" style={{transform: 'rotate(90deg)'}} />
-              </button>
-              <button 
-                className="category-nav-btn"
-                onClick={() => scrollCategories('right')}
-                disabled={categoryScroll >= shopCategories.length - 4}
-              >
-                <ChevronDown className="icon-md" style={{transform: 'rotate(-90deg)'}} />
-              </button>
+          
+          <div className="category-card category-card-blue">
+            <div className="category-logo-badge">
+              <h2 className="category-logo-text">toYo</h2>
             </div>
           </div>
           
-          <div className="category-slider">
-            <div 
-              className="category-grid"
-              style={{ transform: `translateX(-${categoryScroll * 25}%)` }}
-            >
-              {shopCategories.map((category) => (
-                <div key={category.id} className="category-card">
-                  <div className="category-image-wrapper">
-                    <img 
-                      src={category.image} 
-                      alt={category.name}
-                      className="category-image"
-                    />
-                  </div>
-                  <div className="category-name">{category.name}</div>
-                </div>
-              ))}
-            </div>
+          <div className="category-card">
+            <img 
+              src="https://images.unsplash.com/photo-1587912781763-9b857c226797?w=600&h=400&fit=crop" 
+              alt="Crochet toys" 
+              className="category-image"
+            />
           </div>
 
-          <div className="bestsellers-header">
-            <h2 className="section-title">Best Sellers</h2>
-            <a href="#" className="view-all-link">
-              View all <ArrowRight className="icon-sm" />
-            </a>
+          <div className="category-card">
+            <img 
+              src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=500&fit=crop" 
+              alt="Baby toys" 
+              className="category-image"
+            />
+          </div>
+          
+          <div className="category-card category-card-pink">
+            <h2 className="category-title">Best Sellers</h2>
+          </div>
+          
+          <div className="category-card">
+            <img 
+              src="https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=600&h=400&fit=crop" 
+              alt="Stuffed animals" 
+              className="category-image"
+            />
           </div>
 
-          <div className="bestsellers-grid">
-            {bestSellers.map((product) => (
-              <div key={product.id} className="bestseller-card">
-                {product.badge && (
-                  <div className="bestseller-badge">{product.badge}</div>
-                )}
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="bestseller-image"
-                />
-                <div className="bestseller-info">
-                  <h3 className="bestseller-name">{product.name}</h3>
-                  <div className="bestseller-price">{product.price}</div>
-                </div>
-              </div>
-            ))}
+          <div className="category-card category-card-green">
+            <h2 className="category-title">New Collection</h2>
+          </div>
+          
+          <div className="category-card">
+            <img 
+              src="https://images.unsplash.com/photo-1558329420-d6f1a0d269d8?w=600&h=400&fit=crop" 
+              alt="Plush sheep" 
+              className="category-image"
+            />
+          </div>
+          
+          <div className="category-card category-card-orange">
+            <h2 className="category-title">Trending</h2>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* New Arrivals */}
-      <section className="new-arrivals">
-        <div className="new-arrivals-content">
-          <div className="section-header">
-            <h2 className="section-title">
-              New Arrivals
-            </h2>
-            <p className="section-description">Discover our latest ergonomic innovations</p>
+      <div className="showcase-section">
+        <div className="showcase-decor-right">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 30,50 Q 40,20 60,40 Q 80,60 50,70 Q 20,80 30,50" stroke="#16a34a" strokeWidth="6" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div className="showcase-container">
+          <div className="showcase-header">
+            <div className="showcase-logo-badge">
+              <h3 className="showcase-logo-text">toYo</h3>
+            </div>
+            <h2 className="showcase-title">Our Favourite Collections</h2>
+            
+            <div className="showcase-tabs">
+              <button className="showcase-tab active">Stuffed Toys</button>
+              <button className="showcase-tab">Accessories</button>
+              <button className="showcase-tab">Clothes</button>
+              <button className="showcase-tab">Footwear</button>
+            </div>
           </div>
 
-          <div className="new-arrivals-grid">
-            {newArrivals.map((product) => (
-              <div key={product.id} className="new-arrival-card">
-                <div className="new-arrival-badge">{product.badge}</div>
+          <div className="showcase-products">
+            <div className="product-card">
+              <div className="product-image-container">
                 <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="new-arrival-image"
+                  src="https://images.unsplash.com/photo-1563373726-c07fcb50e0ee?w=400&h=400&fit=crop" 
+                  alt="Crochet Cuddly Bunny"
+                  className="product-image"
                 />
-                <div className="new-arrival-info">
-                  <h3 className="new-arrival-name">{product.name}</h3>
-                  <div className="new-arrival-pricing">
-                    <span className="new-arrival-price">{product.price}</span>
-                    <span className="new-arrival-original-price">{product.originalPrice}</span>
-                  </div>
-                  <button 
-                    className="new-arrival-btn"
-                    onClick={() => addToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
               </div>
-            ))}
+              <div className="product-info">
+                <h3 className="product-name">Crochet Cuddly Bunny</h3>
+                <p className="product-price">$24.99</p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image-container">
+                <img 
+                  src="https://images.unsplash.com/photo-1587912781763-9b857c226797?w=400&h=400&fit=crop" 
+                  alt="Crochet Bear"
+                  className="product-image"
+                />
+              </div>
+              <div className="product-info">
+                <h3 className="product-name">Crochet Bear</h3>
+                <p className="product-price">$29.99</p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image-container">
+                <div className="product-badge">Save $5</div>
+                <img 
+                  src="https://images.unsplash.com/photo-1558329420-d6f1a0d269d8?w=400&h=400&fit=crop" 
+                  alt="Crochet Hippo"
+                  className="product-image"
+                />
+              </div>
+              <div className="product-info">
+                <h3 className="product-name">Crochet Hippo</h3>
+                <p className="product-price">
+                  <span className="product-price-sale">$19.99</span>
+                  <span className="product-price-original">$24.99</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image-container">
+                <div className="product-badge">Save $11</div>
+                <img 
+                  src="https://images.unsplash.com/photo-1563373726-c07fcb50e0ee?w=400&h=400&fit=crop" 
+                  alt="Crochet Bunny with a Bow"
+                  className="product-image"
+                />
+              </div>
+              <div className="product-info">
+                <h3 className="product-name">Crochet Bunny with a Bow</h3>
+                <p className="product-price">
+                  <span className="product-price-sale">$18.99</span>
+                  <span className="product-price-original">$29.99</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-grid">
-            <div>
-              <div className="footer-brand">
-                <span className="gullak-g">G</span>
-                <span className="gullak-u">u</span>
-                <span className="gullak-l1">l</span>
-                <span className="gullak-l2">l</span>
-                <span className="gullak-a">a</span>
-                <span className="gullak-k">k</span>
+      <div className="about-section">
+        <div className="about-swirl-1">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 30,50 Q 40,20 60,40 Q 80,60 50,70 Q 20,80 30,50" stroke="white" strokeWidth="6" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div className="about-swirl-2">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 30,20 Q 50,10 60,30 Q 70,50 50,60" stroke="white" strokeWidth="6" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div className="about-container">
+          <div className="about-content">
+            <h2 className="about-heading">About Us</h2>
+            <h3 className="about-subheading">Hard Work and a Passion for Quality</h3>
+            <p className="about-text">
+              Toyo has established itself as a premier destination for parents and caregivers seeking top-quality baby clothes, footwear, stuffed toys, and accessories.
+            </p>
+            <p className="about-text">
+              With a commitment to providing a delightful shopping experience and a wide range of meticulously curated products.
+            </p>
+            <button className="about-button">Learn More</button>
+          </div>
+
+          <div className="about-images">
+            <div className="about-logo-badge">
+              <h3 className="about-logo-text">toYo</h3>
+            </div>
+            
+            <div className="about-image-grid">
+              <div className="about-image-card">
+                <img 
+                  src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=300&fit=crop" 
+                  alt="Mother with baby"
+                />
               </div>
-              <p className="footer-description">
-                Your trusted partner for ergonomic comfort and wellness solutions.
-              </p>
-              <div className="footer-contact">
-                <Phone className="icon-sm" />
-                +91 7498476544
+              
+              <div className="about-image-card about-image-card-tall">
+                <img 
+                  src="https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=400&h=600&fit=crop" 
+                  alt="Plush giraffe and lamb"
+                />
               </div>
-              <div className="footer-contact">
-                <Mail className="icon-sm" />
-                help@mygullak.com
+              
+              <div className="about-image-card">
+                <img 
+                  src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=400&h=300&fit=crop" 
+                  alt="Baby playing with toys"
+                />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="footer-section">
-              <h3>Quick Links</h3>
-              <div className="footer-links">
-                <a href="#" className="footer-link">About Us</a>
-                <a href="#" className="footer-link">Contact</a>
-                <a href="#" className="footer-link">Support</a>
-                <a href="#" className="footer-link">Track Order</a>
-              </div>
+      <div className="favorites-section">
+        <div className="favorites-decor-1">
+          <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
+            <path d="M 0,100 Q 50,50 100,100" stroke="#4F46E5" strokeWidth="20" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div className="favorites-decor-2">
+          <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
+            <path d="M 100,0 Q 150,50 200,100" stroke="#EC4899" strokeWidth="20" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div className="favorites-container">
+          <div className="favorites-header">
+            <div className="favorites-logo-badge">
+              <h3 className="favorites-logo-text">toYo</h3>
             </div>
+            <h2 className="favorites-title">Favorites of the Season</h2>
+            <p className="favorites-subtitle">Explore our most beloved products now.</p>
+          </div>
 
-            <div className="footer-section">
-              <h3>Categories</h3>
-              <div className="footer-links">
-                <a href="#" className="footer-link">Chairs</a>
-                <a href="#" className="footer-link">Cushions</a>
-                <a href="#" className="footer-link">Insoles</a>
-                <a href="#" className="footer-link">Pillows</a>
-              </div>
-            </div>
-
-            <div className="footer-section">
-              <h3>Business Hours</h3>
-              <div className="footer-hours">
-                <div>Mon - Sat: 10am - 7pm</div>
-                <div className="footer-badge">
-                  🔒 Guaranteed Safe Checkout
+          <div className="countdown-banner">
+            <div className="countdown-inner">
+              <img 
+                src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=1400&h=500&fit=crop" 
+                alt="Children playing with toys" 
+                className="countdown-image"
+              />
+              <div className="countdown-overlay">
+                <h3 className="countdown-heading">Don't Miss the Final Sale!</h3>
+                <div className="countdown-boxes">
+                  <div className="countdown-box">
+                    <div className="countdown-number">00</div>
+                    <div className="countdown-label">Days</div>
+                  </div>
+                  <div className="countdown-box">
+                    <div className="countdown-number">00</div>
+                    <div className="countdown-label">Hours</div>
+                  </div>
+                  <div className="countdown-box">
+                    <div className="countdown-number">00</div>
+                    <div className="countdown-label">Minutes</div>
+                  </div>
+                  <div className="countdown-box countdown-box-blue">
+                    <div className="countdown-number countdown-number-white">00</div>
+                    <div className="countdown-label countdown-label-white">Seconds</div>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="newsletter-section">
+        <div className="newsletter-swirl-1">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 20,50 Q 30,20 50,30 Q 70,40 60,60 Q 50,80 30,70" stroke="#EC4899" strokeWidth="8" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div className="newsletter-swirl-2">
+          <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+            <path d="M 30,20 Q 50,10 60,30 Q 70,50 50,60" stroke="#EF4444" strokeWidth="8" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div className="newsletter-container">
+          <div className="newsletter-logo-badge">
+            <h3 className="newsletter-logo-text">toYo</h3>
+          </div>
+          <h2 className="newsletter-heading">Sign Up to the Newsletter</h2>
+          <p className="newsletter-text">
+            Be the first to get notified about New Arrivals, Discounts, and Bargain Deals!
+          </p>
+          
+          <div className="newsletter-form-container">
+            <div className="newsletter-form">
+              <div className="newsletter-form-inner">
+                <input
+                  type="email"
+                  placeholder="Add Your E-Mail Here"
+                  className="newsletter-input"
+                />
+                <button className="newsletter-button">Subscribe</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer className="footer-section">
+        <div className="footer-container">
+          <div className="footer-links">
+            <div className="footer-column">
+              <h4>Home</h4>
+              <ul>
+                <li><a href="#" className="underlined">Home</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Policy</a></li>
+                <li><a href="#">Returns & Exchanges</a></li>
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <h4>Shop</h4>
+              <ul>
+                <li><a href="#">Best Sellers</a></li>
+                <li><a href="#">Trending</a></li>
+                <li><a href="#">New Collection</a></li>
+                <li><a href="#">Favorites</a></li>
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <h4>About Us</h4>
+              <ul>
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Terms of Service</a></li>
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <h4>Contact Us</h4>
+              <ul>
+                <li><a href="#">Customer Service</a></li>
+                <li><a href="#">Gifts Page</a></li>
+                <li><a href="#">Returns & Exchanges</a></li>
+                <li><a href="#">Shipping Information</a></li>
+              </ul>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <p>&copy; 2025 Gullak. All rights reserved. | Privacy Policy | Terms of Service</p>
+            <div className="footer-social">
+              <a href="#">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <a href="#">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="#">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+              </a>
+              <a href="#">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/>
+                </svg>
+              </a>
+            </div>
+
+            <div className="footer-payment">
+              <div className="payment-badge payment-amex">AMEX</div>
+              <div className="payment-badge payment-apple">Apple Pay</div>
+              <div className="payment-badge payment-diners">Diners Club</div>
+              <div className="payment-badge payment-discover">DISCOVER</div>
+              <div className="payment-badge payment-google">Google Pay</div>
+              <div className="payment-badge payment-mastercard">Mastercard</div>
+              <div className="payment-badge payment-shop">Shop Pay</div>
+              <div className="payment-badge payment-visa">VISA</div>
+            </div>
+
+            <button className="footer-currency">
+              <span>United States USD $</span>
+              <ChevronDown size={16} />
+            </button>
           </div>
         </div>
       </footer>
 
-      {/* WhatsApp Widget */}
-      <div className="whatsapp-widget">
-        <button 
-          className="whatsapp-button"
-          onClick={() => setShowWhatsAppPopup(!showWhatsAppPopup)}
-          aria-label="Chat on WhatsApp"
-        >
-          <MessageCircle className="whatsapp-icon" />
-          <div className="whatsapp-notification">1</div>
-        </button>
+      <button className="scroll-top-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
 
-        <div className={`whatsapp-popup ${showWhatsAppPopup ? 'show' : ''}`}>
-          <div className="whatsapp-header">
-            <div className="whatsapp-avatar">G</div>
-            <div className="whatsapp-info">
-              <h3>{businessName}</h3>
-              <div className="whatsapp-status">Typically replies instantly</div>
-            </div>
-            <button 
-              className="whatsapp-close"
-              onClick={() => setShowWhatsAppPopup(false)}
-            >
-              <X className="icon-sm" />
-            </button>
-          </div>
-          
-          <div className="whatsapp-body">
-            <div className="whatsapp-message">
-              {welcomeMessage}
-              <div className="whatsapp-time">Just now</div>
-            </div>
-          </div>
-          
-          <div className="whatsapp-footer">
-            <button 
-              className="whatsapp-chat-button"
-              onClick={() => {
-                const message = encodeURIComponent(welcomeMessage);
-                window.open(`https://wa.me/${whatsappNumber.replace('+', '')}?text=${message}`, '_blank');
-              }}
-            >
-              <MessageCircle className="icon-sm" />
-              Start Chat
-            </button>
+      {showDiscount && (
+        <div className="discount-popup">
+          <button onClick={() => setShowDiscount(false)} className="discount-close">
+            <X size={20} />
+          </button>
+          <div className="discount-content">
+            <p className="discount-label">Welcome Discount</p>
+            <h2 className="discount-amount">Get 10% Off</h2>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
-};
-
-export default FridoHero;
+}
