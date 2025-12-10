@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, User, ShoppingCart, X, ChevronDown } from 'lucide-react';
+import gullakLogo from './logo/gullak.jpeg';
 
 // Mega Menu Component
 function MegaMenu({ isOpen, onClose }) {
@@ -1519,7 +1520,13 @@ export default function ToyoLandingPage() {
               <button className="nav-button">Blog</button>
             </div>
 
-            <div className="nav-logo">toYo</div>
+            <div className="nav-logo">
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '50px', width: 'auto' }}
+              />
+            </div>
 
             <div className="nav-right">
               <button className="nav-icon-button">
@@ -1584,7 +1591,11 @@ export default function ToyoLandingPage() {
           
           <div className="category-card category-card-blue">
             <div className="category-logo-badge">
-              <h2 className="category-logo-text">toYo</h2>
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '60px', width: 'auto' }}
+              />
             </div>
           </div>
           
@@ -1644,7 +1655,11 @@ export default function ToyoLandingPage() {
         <div className="showcase-container">
           <div className="showcase-header">
             <div className="showcase-logo-badge">
-              <h3 className="showcase-logo-text">toYo</h3>
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '45px', width: 'auto' }}
+              />
             </div>
             <h2 className="showcase-title">Our Favourite Collections</h2>
             
@@ -1751,7 +1766,11 @@ export default function ToyoLandingPage() {
 
           <div className="about-images">
             <div className="about-logo-badge">
-              <h3 className="about-logo-text">toYo</h3>
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '40px', width: 'auto' }}
+              />
             </div>
             
             <div className="about-image-grid">
@@ -1795,7 +1814,11 @@ export default function ToyoLandingPage() {
         <div className="favorites-container">
           <div className="favorites-header">
             <div className="favorites-logo-badge">
-              <h3 className="favorites-logo-text">toYo</h3>
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '45px', width: 'auto' }}
+              />
             </div>
             <h2 className="favorites-title">Favorites of the Season</h2>
             <p className="favorites-subtitle">Explore our most beloved products now.</p>
@@ -1848,7 +1871,11 @@ export default function ToyoLandingPage() {
 
         <div className="newsletter-container">
           <div className="newsletter-logo-badge">
-            <h3 className="newsletter-logo-text">toYo</h3>
+            <img 
+              src="https://i.imgur.com/9YXqZQg.png" 
+              alt="Gullak - The Toy House" 
+              style={{ height: '40px', width: 'auto' }}
+            />
           </div>
           <h2 className="newsletter-heading">Sign Up to the Newsletter</h2>
           <p className="newsletter-text">
