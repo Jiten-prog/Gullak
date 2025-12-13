@@ -109,6 +109,48 @@ export default function ToyoLandingPage() {
   const [showDiscount, setShowDiscount] = useState(true);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [collectionsSidebarOpen, setCollectionsSidebarOpen] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useState(false);
+  const [navHovered, setNavHovered] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
+
+  const slides = [
+    { bg: 'linear-gradient(to bottom right, #ef4444, #f97316)', color: 'red' }, // Red-Orange
+    { bg: 'linear-gradient(to bottom right, #16a34a, #22c55e)', color: 'green' }, // Green
+    { bg: 'linear-gradient(to bottom right, #1e3a8a, #3b82f6)', color: 'blue' } // Dark Blue
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  // Handle scroll to collapse/expand navbar
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const heroSection = document.querySelector('.hero-section');
+      if (heroSection) {
+        const heroBottom = heroSection.offsetHeight;
+        const scrollPosition = window.scrollY;
+        setNavCollapsed(scrollPosition > heroBottom - 100);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Show email popup after 40 seconds
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowEmailPopup(true);
+    }, 40000); // 40 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -125,9 +167,86 @@ export default function ToyoLandingPage() {
 
         .hero-section {
           min-height: 100vh;
-          background: linear-gradient(to bottom right, #ef4444, #f97316);
           position: relative;
           overflow: hidden;
+          padding-top: 0;
+          transition: background 0.5s ease-in-out;
+        }
+
+        .hero-slides-container {
+          position: relative;
+          min-height: 100vh;
+          width: 100%;
+        }
+
+        .hero-slide {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transition: opacity 0.5s ease-in-out;
+          pointer-events: none;
+        }
+
+        .hero-slide.active {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        .carousel-button {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 30;
+          background: rgba(255, 255, 255, 0.9);
+          border: none;
+          border-radius: 50%;
+          width: 3.5rem;
+          height: 3.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-button:hover {
+          background: white;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-button-prev {
+          left: 2rem;
+        }
+
+        .carousel-button-next {
+          right: 2rem;
+        }
+
+        .carousel-indicators {
+          position: absolute;
+          bottom: 3rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 30;
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .carousel-indicator {
+          width: 3rem;
+          height: 0.5rem;
+          background: rgba(255, 255, 255, 0.5);
+          border: none;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .carousel-indicator.active {
+          background: white;
+          width: 4rem;
         }
 
         .hero-background-svg {
@@ -139,12 +258,66 @@ export default function ToyoLandingPage() {
         }
 
         .nav-container {
-          position: relative;
-          z-index: 20;
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
+          right: 1rem;
+          z-index: 100;
           background: white;
           border-radius: 9999px;
-          margin: 1rem 1rem;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-container.collapsed {
+          top: 1rem;
+          left: 50%;
+          right: auto;
+          transform: translateX(-50%);
+          width: auto;
+          padding: 0.5rem 1rem;
+        }
+
+        .nav-container.collapsed .nav-inner {
+          padding: 0.5rem 1rem;
+        }
+
+        .nav-container.collapsed .nav-left,
+        .nav-container.collapsed .nav-right {
+          opacity: 0;
+          visibility: hidden;
+          width: 0;
+          overflow: hidden;
+        }
+
+        .nav-container.collapsed .nav-logo {
+          position: static;
+          transform: none;
+        }
+
+        .nav-container.collapsed:hover {
+          left: 1rem;
+          right: 1rem;
+          transform: none;
+          width: auto;
+          padding: 0;
+        }
+
+        .nav-container.collapsed:hover .nav-inner {
+          padding: 1rem 1.5rem;
+        }
+
+        .nav-container.collapsed:hover .nav-left,
+        .nav-container.collapsed:hover .nav-right {
+          opacity: 1;
+          visibility: visible;
+          width: auto;
+        }
+
+        .nav-container.collapsed:hover .nav-logo {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
         }
 
         .nav-inner {
@@ -158,6 +331,7 @@ export default function ToyoLandingPage() {
           display: flex;
           align-items: center;
           gap: 2rem;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-button {
@@ -171,6 +345,7 @@ export default function ToyoLandingPage() {
           cursor: pointer;
           transition: color 0.3s;
           font-size: 1rem;
+          white-space: nowrap;
         }
 
         .nav-button:hover {
@@ -184,12 +359,14 @@ export default function ToyoLandingPage() {
           font-size: 2.25rem;
           font-weight: bold;
           color: #ef4444;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-right {
           display: flex;
           align-items: center;
           gap: 1.5rem;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-icon-button {
@@ -214,16 +391,16 @@ export default function ToyoLandingPage() {
           z-index: 10;
           max-width: 1280px;
           margin: 0 auto;
-          padding: 5rem 1rem 8rem;
+          padding: 8rem 1rem 8rem;
           text-align: center;
         }
 
         .hero-title {
-          font-size: 6rem;
+          font-size: 4.5rem;
           font-weight: bold;
           color: white;
           line-height: 1.1;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .hero-bear-container {
@@ -266,7 +443,7 @@ export default function ToyoLandingPage() {
         .banner-section {
           position: relative;
           background: #fef3c7;
-          padding: 2rem 0;
+          padding: 1.5rem 0;
           overflow: hidden;
         }
 
@@ -286,7 +463,7 @@ export default function ToyoLandingPage() {
         }
 
         .marquee-text {
-          font-size: 5rem;
+          font-size: 3.5rem;
           font-weight: bold;
           color: #ef4444;
           display: inline-block;
@@ -298,7 +475,7 @@ export default function ToyoLandingPage() {
           position: relative;
           z-index: 10;
           background: #fef3c7;
-          padding: 4rem 1rem;
+          padding: 2rem 1rem;
         }
 
         .categories-grid {
@@ -335,7 +512,7 @@ export default function ToyoLandingPage() {
 
         .category-image {
           width: 100%;
-          height: 20rem;
+          height: 12rem;
           object-fit: cover;
         }
 
@@ -344,17 +521,17 @@ export default function ToyoLandingPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 20rem;
+          height: 12rem;
         }
 
         .category-logo-badge {
           background: white;
           border-radius: 9999px;
-          padding: 2rem 4rem;
+          padding: 1rem 2rem;
         }
 
         .category-logo-text {
-          font-size: 3rem;
+          font-size: 1.8rem;
           font-weight: bold;
           color: #ef4444;
         }
@@ -364,7 +541,7 @@ export default function ToyoLandingPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 20rem;
+          height: 12rem;
         }
 
         .category-card-green {
@@ -372,7 +549,7 @@ export default function ToyoLandingPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 20rem;
+          height: 12rem;
         }
 
         .category-card-orange {
@@ -380,11 +557,11 @@ export default function ToyoLandingPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 20rem;
+          height: 12rem;
         }
 
         .category-title {
-          font-size: 3rem;
+          font-size: 1.8rem;
           font-weight: bold;
           color: white;
         }
@@ -393,7 +570,7 @@ export default function ToyoLandingPage() {
         .showcase-section {
           position: relative;
           background: #fef3c7;
-          padding: 4rem 1rem;
+          padding: 2rem 1rem;
           overflow: hidden;
         }
 
@@ -431,10 +608,10 @@ export default function ToyoLandingPage() {
         }
 
         .showcase-title {
-          font-size: 4rem;
+          font-size: 3rem;
           font-weight: bold;
           color: #ef4444;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .showcase-tabs {
@@ -715,20 +892,20 @@ export default function ToyoLandingPage() {
         .collections-sidebar {
           position: fixed;
           top: 0;
-          right: 0;
+          left: 0;
           width: 400px;
           max-width: 90vw;
           height: 100vh;
           background: #fef3c7;
           z-index: 70;
           overflow-y: auto;
-          animation: slideInRight 0.3s ease-out;
-          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+          animation: slideInLeft 0.3s ease-out;
+          box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
         }
 
-        @keyframes slideInRight {
+        @keyframes slideInLeft {
           from {
-            transform: translateX(100%);
+            transform: translateX(-100%);
           }
           to {
             transform: translateX(0);
@@ -858,7 +1035,7 @@ export default function ToyoLandingPage() {
         .about-section {
           position: relative;
           background: linear-gradient(to right, #fcd34d, #fbbf24);
-          padding: 5rem 1rem;
+          padding: 2rem 1rem;
           overflow: hidden;
         }
 
@@ -901,17 +1078,17 @@ export default function ToyoLandingPage() {
         }
 
         .about-heading {
-          font-size: 4rem;
+          font-size: 3rem;
           font-weight: bold;
           color: #ef4444;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
 
         .about-subheading {
-          font-size: 3rem;
+          font-size: 2.2rem;
           font-weight: bold;
           color: #111827;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           line-height: 1.2;
         }
 
@@ -994,7 +1171,7 @@ export default function ToyoLandingPage() {
         .favorites-section {
           position: relative;
           background: #fef3c7;
-          padding: 4rem 1rem;
+          padding: 2rem 1rem;
           overflow: hidden;
         }
 
@@ -1041,7 +1218,7 @@ export default function ToyoLandingPage() {
         }
 
         .favorites-title {
-          font-size: 4rem;
+          font-size: 3rem;
           font-weight: bold;
           color: #1e3a8a;
           margin-bottom: 1rem;
@@ -1080,10 +1257,10 @@ export default function ToyoLandingPage() {
         }
 
         .countdown-heading {
-          font-size: 3rem;
+          font-size: 2.2rem;
           font-weight: bold;
           color: white;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .countdown-boxes {
@@ -1124,11 +1301,114 @@ export default function ToyoLandingPage() {
           color: white;
         }
 
+        /* Promotional Banner Section */
+        .promo-banner-section {
+          position: relative;
+          background: #fef3c7;
+          padding: 2rem 1rem;
+          overflow: hidden;
+        }
+
+        .promo-banner-container {
+          position: relative;
+          max-width: 1280px;
+          margin: 0 auto;
+          border-radius: 2rem;
+          overflow: hidden;
+        }
+
+        .promo-banner-content {
+          position: relative;
+          min-height: 32rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 4rem 2rem;
+        }
+
+        .promo-banner-bg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .promo-banner-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+        }
+
+        .promo-banner-logo {
+          position: relative;
+          z-index: 10;
+          background: white;
+          border-radius: 9999px;
+          padding: 0.75rem 2rem;
+          margin-bottom: 2rem;
+          display: inline-block;
+        }
+
+        .promo-banner-title {
+          position: relative;
+          z-index: 10;
+          font-size: 3rem;
+          font-weight: bold;
+          color: white;
+          margin-bottom: 1rem;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .promo-banner-subtitle {
+          position: relative;
+          z-index: 10;
+          font-size: 1.25rem;
+          color: white;
+          margin-bottom: 2rem;
+          max-width: 42rem;
+          line-height: 1.6;
+          text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .promo-banner-button {
+          position: relative;
+          z-index: 10;
+          background: linear-gradient(to right, #ef4444, #dc2626);
+          color: white;
+          font-weight: bold;
+          font-size: 1.125rem;
+          padding: 1rem 3rem;
+          border-radius: 9999px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .promo-banner-button:hover {
+          background: linear-gradient(to right, #dc2626, #b91c1c);
+          transform: scale(1.05);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+          .promo-banner-title {
+            font-size: 2.5rem;
+          }
+          
+          .promo-banner-subtitle {
+            font-size: 1rem;
+          }
+        }
+
         /* Newsletter Section */
         .newsletter-section {
           position: relative;
           background: linear-gradient(to right, #fcd34d, #fbbf24);
-          padding: 5rem 1rem;
+          padding: 2rem 1rem;
           overflow: hidden;
         }
 
@@ -1171,7 +1451,7 @@ export default function ToyoLandingPage() {
         }
 
         .newsletter-heading {
-          font-size: 3rem;
+          font-size: 2.2rem;
           font-weight: bold;
           color: #111827;
           margin-bottom: 1rem;
@@ -1235,7 +1515,7 @@ export default function ToyoLandingPage() {
         /* Footer */
         .footer-section {
           background: linear-gradient(to right, #fcd34d, #fbbf24);
-          padding: 3rem 1rem;
+          padding: 2rem 1rem;
         }
 
         .footer-container {
@@ -1462,6 +1742,158 @@ export default function ToyoLandingPage() {
           color: #ef4444;
         }
 
+        /* Email Popup Modal */
+        .email-popup-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        .email-popup {
+          position: relative;
+          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+          border: 4px solid #ef4444;
+          border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+          padding: 3rem 2.5rem;
+          max-width: 600px;
+          width: 90%;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+          0% {
+            transform: scale(0.5);
+            opacity: 0;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .email-popup-close {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: #ef4444;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 2.5rem;
+          height: 2.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-size: 1.25rem;
+          font-weight: bold;
+        }
+
+        .email-popup-close:hover {
+          background: #dc2626;
+          transform: rotate(90deg);
+        }
+
+        .email-popup-logo {
+          text-align: center;
+          margin-bottom: 1.5rem;
+        }
+
+        .email-popup-title {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #111827;
+          text-align: center;
+          margin-bottom: 1rem;
+          line-height: 1.2;
+        }
+
+        .email-popup-subtitle {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #ef4444;
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+
+        .email-popup-form {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .email-popup-input {
+          flex: 1;
+          min-width: 200px;
+          padding: 0.875rem 1.5rem;
+          border: 2px solid #111827;
+          border-radius: 9999px;
+          font-size: 1rem;
+          outline: none;
+          transition: all 0.3s;
+        }
+
+        .email-popup-input:focus {
+          border-color: #ef4444;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .email-popup-input::placeholder {
+          color: #9ca3af;
+        }
+
+        .email-popup-button {
+          background: #ef4444;
+          color: white;
+          font-weight: bold;
+          padding: 0.875rem 2.5rem;
+          border: none;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          white-space: nowrap;
+        }
+
+        .email-popup-button:hover {
+          background: #dc2626;
+          transform: scale(1.05);
+        }
+
+        @media (max-width: 640px) {
+          .email-popup {
+            padding: 2rem 1.5rem;
+          }
+
+          .email-popup-title {
+            font-size: 1.5rem;
+          }
+
+          .email-popup-subtitle {
+            font-size: 1rem;
+          }
+
+          .email-popup-form {
+            flex-direction: column;
+          }
+
+          .email-popup-input,
+          .email-popup-button {
+            width: 100%;
+          }
+        }
+
         @media (max-width: 768px) {
           .hero-title {
             font-size: 4rem;
@@ -1494,12 +1926,11 @@ export default function ToyoLandingPage() {
       `}</style>
 
       <div className="hero-section">
-        <svg className="hero-background-svg" viewBox="0 0 1440 800" preserveAspectRatio="none">
-          <path d="M0,400 Q360,200 720,400 T1440,400 L1440,0 L0,0 Z" fill="#F59E0B" opacity="0.3"/>
-          <path d="M0,600 Q360,400 720,600 T1440,600 L1440,800 L0,800 Z" fill="#DC2626" opacity="0.2"/>
-        </svg>
-
-        <nav className="nav-container">
+        <nav 
+          className={`nav-container ${navCollapsed && !navHovered ? 'collapsed' : ''}`}
+          onMouseEnter={() => setNavHovered(true)}
+          onMouseLeave={() => setNavHovered(false)}
+        >
           <div className="nav-inner">
             <div className="nav-left">
               <button 
@@ -1557,18 +1988,54 @@ export default function ToyoLandingPage() {
           <CollectionsSidebar isOpen={collectionsSidebarOpen} onClose={() => setCollectionsSidebarOpen(false)} />
         </nav>
 
-        <div className="hero-content">
-          <h1 className="hero-title">
-            Playtime Is<br />Best Time!
-          </h1>
+        <div className="hero-slides-container">
+          {slides.map((slide, index) => (
+            <div 
+              key={index}
+              className={`hero-slide ${index === currentSlide ? 'active' : ''}`}
+              style={{ background: slide.bg }}
+            >
+              <svg className="hero-background-svg" viewBox="0 0 1440 800" preserveAspectRatio="none">
+                <path d="M0,400 Q360,200 720,400 T1440,400 L1440,0 L0,0 Z" fill="#F59E0B" opacity="0.3"/>
+                <path d="M0,600 Q360,400 720,600 T1440,600 L1440,800 L0,800 Z" fill="#DC2626" opacity="0.2"/>
+              </svg>
 
-          <div className="hero-bear-container">
-            <div className="hero-bear-circle">🧸</div>
-          </div>
+              <div className="hero-content">
+                <h1 className="hero-title">
+                  Playtime Is<br />Best Time!
+                </h1>
+
+                <div className="hero-bear-container">
+                  <div className="hero-bear-circle">🧸</div>
+                </div>
+              </div>
+
+              <div className="decorative-plus-1">+</div>
+              <div className="decorative-plus-2">+</div>
+            </div>
+          ))}
         </div>
 
-        <div className="decorative-plus-1">+</div>
-        <div className="decorative-plus-2">+</div>
+        <button className="carousel-button carousel-button-prev" onClick={prevSlide}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button className="carousel-button carousel-button-next" onClick={nextSlide}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <div className="carousel-indicators">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
+              onClick={() => setCurrentSlide(index)}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="banner-section">
@@ -1591,11 +2058,7 @@ export default function ToyoLandingPage() {
           
           <div className="category-card category-card-blue">
             <div className="category-logo-badge">
-              <img 
-                src={gullakLogo} 
-                alt="Gullak - The Toy House" 
-                style={{ height: '60px', width: 'auto' }}
-              />
+              <h2 className="category-logo-text">Featured</h2>
             </div>
           </div>
           
@@ -1654,13 +2117,6 @@ export default function ToyoLandingPage() {
 
         <div className="showcase-container">
           <div className="showcase-header">
-            <div className="showcase-logo-badge">
-              <img 
-                src={gullakLogo} 
-                alt="Gullak - The Toy House" 
-                style={{ height: '45px', width: 'auto' }}
-              />
-            </div>
             <h2 className="showcase-title">Our Favourite Collections</h2>
             
             <div className="showcase-tabs">
@@ -1765,14 +2221,6 @@ export default function ToyoLandingPage() {
           </div>
 
           <div className="about-images">
-            <div className="about-logo-badge">
-              <img 
-                src={gullakLogo} 
-                alt="Gullak - The Toy House" 
-                style={{ height: '40px', width: 'auto' }}
-              />
-            </div>
-            
             <div className="about-image-grid">
               <div className="about-image-card">
                 <img 
@@ -1813,13 +2261,6 @@ export default function ToyoLandingPage() {
 
         <div className="favorites-container">
           <div className="favorites-header">
-            <div className="favorites-logo-badge">
-              <img 
-                src={gullakLogo} 
-                alt="Gullak - The Toy House" 
-                style={{ height: '45px', width: 'auto' }}
-              />
-            </div>
             <h2 className="favorites-title">Favorites of the Season</h2>
             <p className="favorites-subtitle">Explore our most beloved products now.</p>
           </div>
@@ -1857,6 +2298,27 @@ export default function ToyoLandingPage() {
         </div>
       </div>
 
+      <div className="promo-banner-section">
+        <div className="promo-banner-container">
+          <div className="promo-banner-content">
+            <img 
+              src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=1400&h=600&fit=crop" 
+              alt="Children with toys" 
+              className="promo-banner-bg"
+            />
+            <div className="promo-banner-overlay"></div>
+            
+
+
+            <h2 className="promo-banner-title">Save Up to 50%</h2>
+            <p className="promo-banner-subtitle">
+              Our curated collections are meant to inspire your creative side and provide you.
+            </p>
+            <button className="promo-banner-button">Shop Now</button>
+          </div>
+        </div>
+      </div>
+
       <div className="newsletter-section">
         <div className="newsletter-swirl-1">
           <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
@@ -1870,13 +2332,6 @@ export default function ToyoLandingPage() {
         </div>
 
         <div className="newsletter-container">
-          <div className="newsletter-logo-badge">
-            <img 
-              src="https://i.imgur.com/9YXqZQg.png" 
-              alt="Gullak - The Toy House" 
-              style={{ height: '40px', width: 'auto' }}
-            />
-          </div>
           <h2 className="newsletter-heading">Sign Up to the Newsletter</h2>
           <p className="newsletter-text">
             Be the first to get notified about New Arrivals, Discounts, and Bargain Deals!
@@ -1998,6 +2453,44 @@ export default function ToyoLandingPage() {
           <div className="discount-content">
             <p className="discount-label">Welcome Discount</p>
             <h2 className="discount-amount">Get 10% Off</h2>
+          </div>
+        </div>
+      )}
+
+      {showEmailPopup && (
+        <div className="email-popup-overlay" onClick={() => setShowEmailPopup(false)}>
+          <div className="email-popup" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowEmailPopup(false)} className="email-popup-close">
+              ×
+            </button>
+
+            <div className="email-popup-logo">
+              <img 
+                src={gullakLogo} 
+                alt="Gullak - The Toy House" 
+                style={{ height: '50px', width: 'auto' }}
+              />
+            </div>
+
+            <h2 className="email-popup-title">
+              Get 10% Off Your First Order!
+            </h2>
+            <p className="email-popup-subtitle">
+              Sign Up And Get 10% Off Your First Order
+            </p>
+
+            <form className="email-popup-form" onSubmit={(e) => { e.preventDefault(); setShowEmailPopup(false); }}>
+              <input
+                type="email"
+                placeholder="Add Your E-Mail Here"
+                className="email-popup-input"
+                required
+              />
+              <button type="submit" className="email-popup-button">
+                Subscribe
+                <span>→</span>
+              </button>
+            </form>
           </div>
         </div>
       )}
