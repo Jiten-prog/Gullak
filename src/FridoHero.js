@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, User, ShoppingCart, X, ChevronDown } from 'lucide-react';
 import gullakLogo from './logo/gullak.jpeg';
 
@@ -15,10 +16,10 @@ function MegaMenu({ isOpen, onClose }) {
             <div className="mega-menu-column">
               <h3 className="mega-menu-heading">All Collections</h3>
               <ul className="mega-menu-list">
-                <li><a href="#">Stuffed Toys</a></li>
-                <li><a href="#">Clothes</a></li>
-                <li><a href="#">Accessories</a></li>
-                <li><a href="#">Footwear</a></li>
+                <li><Link to="/products/plush-toys" onClick={onClose}>Stuffed Toys</Link></li>
+                <li><Link to="/products/crochet" onClick={onClose}>Crochet</Link></li>
+                <li><Link to="/products/baby-toys" onClick={onClose}>Baby Toys</Link></li>
+                <li><Link to="/products/interactive" onClick={onClose}>Interactive</Link></li>
               </ul>
             </div>
 
@@ -75,10 +76,10 @@ function CollectionsSidebar({ isOpen, onClose }) {
 
         <div className="collections-content">
           <div className="collections-list">
-            <a href="#" className="collections-item">Stuffed Toys</a>
-            <a href="#" className="collections-item">Clothes</a>
-            <a href="#" className="collections-item">Accessories</a>
-            <a href="#" className="collections-item">Footwear</a>
+            <Link to="/products/plush-toys" className="collections-item" onClick={onClose}>Stuffed Toys</Link>
+            <Link to="/products/crochet" className="collections-item" onClick={onClose}>Crochet</Link>
+            <Link to="/products/baby-toys" className="collections-item" onClick={onClose}>Baby Toys</Link>
+            <Link to="/products/interactive" className="collections-item" onClick={onClose}>Interactive</Link>
           </div>
 
           <div className="collections-featured">
@@ -504,10 +505,15 @@ export default function ToyoLandingPage() {
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           transition: box-shadow 0.3s;
           cursor: pointer;
+          display: block;
         }
 
         .category-card:hover {
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        a .category-card {
+          pointer-events: auto;
         }
 
         .category-image {
@@ -809,6 +815,7 @@ export default function ToyoLandingPage() {
           text-decoration: none;
           transition: color 0.3s;
           font-size: 0.95rem;
+          cursor: pointer;
         }
 
         .mega-menu-list a:hover {
@@ -2048,13 +2055,15 @@ export default function ToyoLandingPage() {
 
       <div className="categories-section">
         <div className="categories-grid">
-          <div className="category-card">
-            <img 
-              src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=400&fit=crop" 
-              alt="Plush toys" 
-              className="category-image"
-            />
-          </div>
+          <Link to="/products/plush-toys" style={{ textDecoration: 'none' }}>
+            <div className="category-card">
+              <img 
+                src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=400&fit=crop" 
+                alt="Plush toys" 
+                className="category-image"
+              />
+            </div>
+          </Link>
           
           <div className="category-card category-card-blue">
             <div className="category-logo-badge">
@@ -2062,45 +2071,53 @@ export default function ToyoLandingPage() {
             </div>
           </div>
           
-          <div className="category-card">
-            <img 
-              src="https://images.unsplash.com/photo-1587912781763-9b857c226797?w=600&h=400&fit=crop" 
-              alt="Crochet toys" 
-              className="category-image"
-            />
-          </div>
+          <Link to="/products/crochet" style={{ textDecoration: 'none' }}>
+            <div className="category-card">
+              <img 
+                src="https://images.unsplash.com/photo-1587912781763-9b857c226797?w=600&h=400&fit=crop" 
+                alt="Crochet toys" 
+                className="category-image"
+              />
+            </div>
+          </Link>
 
-          <div className="category-card">
-            <img 
-              src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=500&fit=crop" 
-              alt="Baby toys" 
-              className="category-image"
-            />
-          </div>
+          <Link to="/products/baby-toys" style={{ textDecoration: 'none' }}>
+            <div className="category-card">
+              <img 
+                src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&h=500&fit=crop" 
+                alt="Baby toys" 
+                className="category-image"
+              />
+            </div>
+          </Link>
           
           <div className="category-card category-card-pink">
             <h2 className="category-title">Best Sellers</h2>
           </div>
           
-          <div className="category-card">
-            <img 
-              src="https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=600&h=400&fit=crop" 
-              alt="Stuffed animals" 
-              className="category-image"
-            />
-          </div>
+          <Link to="/products/interactive" style={{ textDecoration: 'none' }}>
+            <div className="category-card">
+              <img 
+                src="https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=600&h=400&fit=crop" 
+                alt="Stuffed animals" 
+                className="category-image"
+              />
+            </div>
+          </Link>
 
           <div className="category-card category-card-green">
             <h2 className="category-title">New Collection</h2>
           </div>
           
-          <div className="category-card">
-            <img 
-              src="https://images.unsplash.com/photo-1558329420-d6f1a0d269d8?w=600&h=400&fit=crop" 
-              alt="Plush sheep" 
-              className="category-image"
-            />
-          </div>
+          <Link to="/products/plush-toys" style={{ textDecoration: 'none' }}>
+            <div className="category-card">
+              <img 
+                src="https://images.unsplash.com/photo-1558329420-d6f1a0d269d8?w=600&h=400&fit=crop" 
+                alt="Plush sheep" 
+                className="category-image"
+              />
+            </div>
+          </Link>
           
           <div className="category-card category-card-orange">
             <h2 className="category-title">Trending</h2>
